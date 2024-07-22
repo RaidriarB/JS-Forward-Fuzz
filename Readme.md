@@ -2,12 +2,19 @@
 
 **Web前端加密场景下的参数抓包修改、参数模糊测试工具。**
 
+引用一下工具原作者的介绍：
+> 随着互联网安全的发展，对重要的业务系统的安全性要求也在逐渐提升，出现了大量用于加密参数的js，实现了客户端浏览器到服务器直接的参数加密。这个时候想要对渗透测试无疑相当于增加了难度，通常我们F12对其进行调试寻找加密过程密钥，解密参数后修改数据包再加密送往服务器，这个过程繁琐且效率低下，遇到轮询密钥交换等不固定密钥算法时还会更加复杂。
+> 
+> 为此，Js-Forward被开发了出来，通过使用该工具，可以应对几乎所有的前端加密技术对渗透测试造成的困扰。
+
 本项目基于G-Security-Team的[JS-Forward](https://github.com/G-Security-Team/JS-Forward)二次开发，增加了针对参数进行Fuzz的功能，方便安全测试人员注入SQL、XSS等payload。
 
 ## 使用方法
 可参考原作者的[文档](https://github.com/G-Security-Team/JS-Forward?tab=readme-ov-file#js-forward-%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95)理解原理，也可以直接看下面的教程。
 
 以某金融Web站点的找回密码接口为例，该接口使用了SM2、SM3、SM4进行对称加密、非对称加密和签名，其中非对称加密的私钥在Web端没有泄漏，通过中间人截获的方式是解不开数据包的，因此只能使用“改内存“大法。
+
+启动工具：`python3 main.py`
 
 ### （1） 变量转发模式
 #### Step 1: 找到变量被加密之前的明文位置
@@ -60,7 +67,7 @@
 首先放一个Web前端加密流程图（不考虑混淆对抗情况）
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/bg-1.png)
 
-## 路线1：基于中间人的加解密方法
+### 路线1：基于中间人的加解密方法
 
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/bg-2.png)
 
@@ -83,7 +90,7 @@
     
 
   
-## 路线2: 在加密之前就截获参数（类似CheatEngine改内存）
+### 路线2: 在加密之前就截获参数（类似CheatEngine改内存）
 
 我觉得Web这里还不至于像游戏那样有内存数据的交叉检验吧...这个方法应该是更有效的
 
