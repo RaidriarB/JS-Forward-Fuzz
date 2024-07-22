@@ -22,7 +22,7 @@
 通过分析JS，发现在数据被加密之前，将用户名、手机号、验证码等信息，都存放于`e.data`这个变量之中，且变量的类型是json对象。
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/1.png)
 
-#### Step 2: 生成能够转发变量的s代码，并插入网页JS中
+#### Step 2: 生成能够转发变量的js代码，并插入网页JS中
 
 在工具中按照指引填写信息。
 
@@ -71,7 +71,7 @@
 
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/bg-2.png)
 
-方案分析：
+**方案分析：**
 - 密码学上，只能破解“能被中间人”的系列
     - 可以破解知道对话密钥的对称加密
     - 非对称加密，若没有服务端私钥，是解不开的
@@ -81,10 +81,9 @@
     - 简单的好办，可以预定义解密逻辑，还是比较简单的
 - 集成情况
     - 可作为burp、yakit插件，或者作为下游代理，与其他模块都能配合的比较好。burp能爆破，yakit也能fuzztag，集成情况非常好。
-    - 当然，这也是因为它适用的范围有限（只能破解“能被中间人”）的场景。   
+    - 当然，这也是因为它适用的范围有限（只能破解“能被中间人”）的场景。
 
-
-方案实例
+**方案实例:**
 1. 基于mitmproxy编写脚本，然后burp设置下游代理
 2. 编写burp插件，如burpy、jsencrypter
     
@@ -96,7 +95,7 @@
 
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/bg-3.png)
 
-方案分析：
+**方案分析：**
 
 - 密码学上不存在卡脖子情况，任何情况都适用。
 - 因为涉及Web APP的修改，可能会遇到反调试等对抗场景。
@@ -111,4 +110,10 @@
     - 不过仅仅是实现fuzz功能的话，倒不用通过burp，还是不难实现的。
 
 
-方案实例：JSForward，把变量用http请求的方式转发给burp，burp修改后再发回去。相当于用一个web请求进行了hook。这个思路很不错，于是便有了本项目。
+**方案实例：**
+JSForward，把变量用http请求的方式转发给burp，burp修改后再发回去。相当于用一个web请求进行了hook。这个思路很不错，于是便有了本项目。
+
+
+## 其他说明
+
+如果发现工具有bug、有不适用的场景，或者有其他想要加入的功能，可以发issue或邮箱：`1085455474@qq.com`
