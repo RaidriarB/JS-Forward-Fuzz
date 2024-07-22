@@ -1,11 +1,13 @@
 # JS-Forward-Fuzz
 
-Web前端加密场景下的抓包修改、参数模糊测试工具。
-本项目基于G-Security-Team的[JS-Forward](https://github.com/G-Security-Team/JS-Forward)二次开发，增加了针对参数进行Fuzz的功能。
+**Web前端加密场景下的参数抓包修改、参数模糊测试工具。**
+
+本项目基于G-Security-Team的[JS-Forward](https://github.com/G-Security-Team/JS-Forward)二次开发，增加了针对参数进行Fuzz的功能，方便安全测试人员注入SQL、XSS等payload。
 
 ## 使用方法
+可参考原作者的[文档](https://github.com/G-Security-Team/JS-Forward?tab=readme-ov-file#js-forward-%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95)理解原理，也可以直接看下面的教程。
 
-以某金融Web站点的找回密码接口为例。
+以某金融Web站点的找回密码接口为例，该接口使用了SM2、SM3、SM4进行对称加密、非对称加密和签名，其中非对称加密的私钥在Web端没有泄漏，通过中间人截获的方式是解不开数据包的，因此只能使用“改内存“大法。
 
 ### （1） 变量转发模式
 #### Step 1: 找到变量被加密之前的明文位置
@@ -49,6 +51,57 @@ Web前端加密场景下的抓包修改、参数模糊测试工具。
 
 #### Step 4: 在前端手动点击一次，即可发送一次fuzz请求
 
-去前端页面点击按钮即可，fuzz进度会在`fuzz.progress`中记录，如需充值进度可修改该文件。
+去前端页面点击按钮即可，fuzz进度会在`fuzz.progress`中记录，如需重置进度可修改该文件。
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/8.png)
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/9.png)
+
+## 项目背景
+在研究Web前端加密的解决方案时，概括出两条解决路径：基于“中间人”或基于“内存修改”。
+首先放一个Web前端加密流程图（不考虑混淆对抗情况）
+![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/bg-1.png)
+
+## 路线1：基于中间人的加解密方法
+
+![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/bg-2.png)
+
+方案分析：
+- 密码学上，只能破解“能被中间人”的系列
+    - 可以破解知道对话密钥的对称加密
+    - 非对称加密，若没有服务端私钥，是解不开的
+    - 哈希也没办法搞定
+- 脚本编写
+    - 困难的费劲，要自己写解密逻辑
+    - 简单的好办，可以预定义解密逻辑，还是比较简单的
+- 集成情况
+    - 可作为burp、yakit插件，或者作为下游代理，与其他模块都能配合的比较好。burp能爆破，yakit也能fuzztag，集成情况非常好。
+    - 当然，这也是因为它适用的范围有限（只能破解“能被中间人”）的场景。   
+
+
+方案实例
+1. 基于mitmproxy编写脚本，然后burp设置下游代理
+2. 编写burp插件，如burpy、jsencrypter
+    
+
+  
+## 路线2: 在加密之前就截获参数（类似CheatEngine改内存）
+
+我觉得Web这里还不至于像游戏那样有内存数据的交叉检验吧...这个方法应该是更有效的
+
+![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/bg-3.png)
+
+方案分析：
+
+- 密码学上不存在卡脖子情况，任何情况都适用。
+- 因为涉及Web APP的修改，可能会遇到反调试等对抗场景。
+    - 无限debugger
+    - JS混淆
+- 脚本编写
+    - 不管加解密逻辑困不困难，只要找到位置，“插个眼”，就能解决问题。
+    - 关键点在于“插个眼”怎么实现，浏览器有没有好用的机制。
+    - “插眼”过程是需要依赖浏览器的，可能要编写浏览器插件，或者自己手动在浏览器里加代码。
+- 集成情况
+    - 很难集成到burp，因为每次都依赖于实际点击Web APP中的功能键。
+    - 不过仅仅是实现fuzz功能的话，倒不用通过burp，还是不难实现的。
+
+
+方案实例：JSForward，把变量用http请求的方式转发给burp，burp修改后再发回去。相当于用一个web请求进行了hook。这个思路很不错，于是便有了本项目。
