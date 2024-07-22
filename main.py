@@ -123,8 +123,8 @@ def get_payload():
         if not param_name:
             return False
         request_type = input(">> 请输入针对该变量的动作：\n 1 将变量继续传递（如传递至burpsuite）\n 2 基于程序字典文件夹执行fuzz操作：\n> ")
+        data_type = input(">> 请输入" + param_name +  "的数据类型(json/string)：\n> ")
         if request_type.strip() == "1":
-            data_type = input(">> 请输入" + param_name +  "的数据类型(json/string)：\n> ")
             if data_type == "json":
                 base_payload = f'var xhr = new XMLHttpRequest();xhr.open("post", "http://127.0.0.1:{FORWORD_PORT}/REQUEST", false);xhr.send(JSON.stringify({param_name}));{param_name}=JSON.parse(xhr.responseText);'
             elif data_type == "string":
@@ -133,7 +133,14 @@ def get_payload():
                 print(">> 您的数据类型输入有误")
                 return True
         elif request_type.strip() == "2":
-            base_payload = f'var xhr = new XMLHttpRequest();xhr.open("post", "http://127.0.0.1:{FORWORD_PORT}/FUZZ", false);xhr.send({param_name});{param_name}=xhr.responseText;'
+            #base_payload = f'var xhr = new XMLHttpRequest();xhr.open("post", "http://127.0.0.1:{FORWORD_PORT}/FUZZ", false);xhr.send({param_name});{param_name}=xhr.responseText;'
+            if data_type == "json":
+                base_payload = f'var xhr = new XMLHttpRequest();xhr.open("post", "http://127.0.0.1:{FORWORD_PORT}/FUZZ", false);xhr.send("{param_name}");{param_name}=JSON.parse(xhr.responseText);'
+            elif data_type == "string":
+                base_payload = f'var xhr = new XMLHttpRequest();xhr.open("post", "http://127.0.0.1:{FORWORD_PORT}/FUZZ", false);xhr.send("{param_name}");{param_name}=xhr.responseText;'
+            else:
+                print(">> 您的数据类型输入有误")
+                return True
         else:
             print(">> 您的请求标识输入有误")
             return True

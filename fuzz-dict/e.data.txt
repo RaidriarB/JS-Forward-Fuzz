@@ -1,0 +1,4 @@
+{"BankId":"9999","LoginType":"C","_locale":"zh_CN","MachineCode":null,"MacAddress":null,"Phone":"11111111111","SMSVerifyCode":"123123","UserId":"test_name","DisplayFields":"UserId","TransactionId":"ResetPassword"}
+{"BankId":"9999","LoginType":"C","_locale":"zh_CN","MachineCode":null,"MacAddress":null,"Phone":"12222222222","SMSVerifyCode":"123123","UserId":"test_name","DisplayFields":"UserId","TransactionId":"ResetPassword"}
+{"BankId":"9999","LoginType":"C","_locale":"zh_CN","MachineCode":null,"MacAddress":null,"Phone":"13333333333","SMSVerifyCode":"123123","UserId":"test_name","DisplayFields":"UserId","TransactionId":"ResetPassword"}
+{"BankId":"9999","LoginType":"C","_locale":"zh_CN","MachineCode":null,"MacAddress":null,"Phone":"14444444444","SMSVerifyCode":"123123","UserId":"test_name","DisplayFields":"UserId","TransactionId":"ResetPassword"}
