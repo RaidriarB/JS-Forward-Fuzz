@@ -2,11 +2,10 @@ from threading import Thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests,os
 
+BURP_PORT = 18888 # burp端口
 
-FORWORD_PORT = 28080
-ECHO_PORT = 38080
-BURP_PORT = 18888
-# 定义文件路径
+FORWORD_PORT = 28080 # JS代码转发到服务器的端口
+ECHO_PORT = 38080 # 为了让流量通过burp，设置一个echo服务器作为目标地址，然后把proxy设置为burp的地址
 FUZZ_FOLDER = 'fuzz-dict'
 PROGRESS_FILE_NAME = 'fuzz.progress'
 
@@ -97,7 +96,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers.get('content-length', 0))
         self.send_response(200)
         # 不加入这行会导致跨域问题
-        #self.send_header('Access-Control-Allow-Origin','*')
+        self.send_header('Access-Control-Allow-Origin','*')
         self.end_headers()
         self.wfile.write(self.rfile.read(content_length))
 
