@@ -9,6 +9,14 @@
 
 本项目基于G-Security-Team的[JS-Forward](https://github.com/G-Security-Team/JS-Forward)二次开发，增加了针对参数进行Fuzz的功能，方便安全测试人员注入SQL、XSS等payload。
 
+## 功能说明
+
+工具运行后，用户可以根据提示生成Payload，放入网页源代码中，实现不同功能。Payload有三种类型：
+
+1. Hook网页JS中某处的变量值，并发到burp等工具中进行修改。一般用于在**请求包的参数没加密之前拦截修改**。
+2. 对变量进行模糊测试，一般用于在请求包参数没加密之前，**通过字典进行fuzz**。
+3. Hook网页JS中某处的变量值，并在burp中查看。一般用于在**返回包的参数解密后呈现**给使用者。
+
 ## 使用方法
 可参考原作者的[文档](https://github.com/G-Security-Team/JS-Forward?tab=readme-ov-file#js-forward-%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95)理解原理，也可以直接看下面的教程。
 
@@ -16,7 +24,7 @@
 
 首先设置main.py中BURP_PORT为你的burpsuite开放端口，然后即可启动工具：`python3 main.py`
 
-### （1） 变量转发模式
+### （1） 变量转发-修改模式
 #### Step 1: 找到变量被加密之前的明文位置
 
 通过分析JS，发现在数据被加密之前，将用户名、手机号、验证码等信息，都存放于`e.data`这个变量之中，且变量的类型是json对象。
@@ -44,9 +52,9 @@
 
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/6.png)
 
-### （2） Fuzz模式
+### （2） 变量Fuzz模式
 
-#### Step 1、Step 2同变量转发模式
+#### Step 1、Step 2同变量转发-修改模式
 
 只不过在工具中填写信息时，注意针对变量使用FUZZ操作，输入2
 
@@ -61,6 +69,16 @@
 去前端页面点击按钮即可，fuzz进度会在`fuzz.progress`中记录，如需重置进度可修改该文件。
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/8.png)
 ![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/9.png)
+
+### (3) 变量监听模式
+该模式仅仅通过XHR将变量的值发送出来，但是没有修改逻辑。一般用于监听解密后的返回值来使用。
+#### Step 1、Step 2同变量转发模式
+填写信息时注意在选择操作模式时输入3，注入代码时注意要在数据被Web APP解密完全了之后，再把变量转发出来。
+
+![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/10.png)
+
+在burp中即可看到解密后的返回包。
+![](https://raw.githubusercontent.com/RaidriarB/JS-Forward-Fuzz/main/imgs/11.png)
 
 ## 项目背景
 在研究Web前端加密的解决方案时，概括出两条解决路径：基于“中间人”或基于“内存修改”。
